@@ -94,8 +94,8 @@ class planet:
         self.speed_change(ax, ay)
 
     def draw(self, name):
-        pyray.draw_circle(round(self.x / pow(10, 10) + 500), round(self.y / pow(10, 10) + 400), self.rad / pow(10, 3), self.color)
-        pyray.draw_text(name, round(self.x / pow(10, 10) + 500) - 2, round(self.y / pow(10, 10) + 400) + round(self.rad / pow(10, 3)) + 5, 10, colors.GRAY)
+        pyray.draw_circle(round(self.x + 500), round(self.y + 400), self.rad, self.color)
+        pyray.draw_text(name, round(self.x + 500) - 2, round(self.y + 400) + round(self.rad) + 5, 10, colors.GRAY)
 
     def same(self, other):
         return self.x == other.x and self.y == other.y and self.mass == other.mass and self.rad == other.rad and self.vx == other.vx and self.vy == other.vy
@@ -107,7 +107,7 @@ def check_force(planet_a, planet_b):
         b = abs(planet_a.y - planet_b.y)
         s = (a ** 2 + b ** 2) ** 0.5
         f = (planet_a.mass + planet_b.mass) / s
-        f *= pow(10, 15) #6.67 * pow(10, -5)
+        f *= 5
         angle = math.atan2(planet_b.y - planet_a.y, planet_b.x - planet_a.x)
         fa = vector(f * math.cos(angle), f * math.sin(angle))
         return fa
@@ -141,12 +141,12 @@ def phase_1(count, phase, curent_planet, params, planets):
             param.logic()
         if pyray.gui_button(pyray.Rectangle(650, 600, 300, 100), "NEXT_PLANET"):
             curent_planet += 1
-            planets.append(planet(float(params[0].text) * pow(10, 10), float(params[1].text) * pow(10, 10), float(params[4].text) * pow(10, 23), float(params[5].text) * pow(10, 3) , float(params[2].text) * 1e+7, float(params[3].text) * 1e+7))
+            planets.append(planet(float(params[0].text), float(params[1].text), float(params[4].text), float(params[5].text), float(params[2].text), float(params[3].text)))
             for param in params:
                 param.text = ''
         if pyray.gui_button(pyray.Rectangle(300, 600, 300, 100), "FILL_RANDOM"):
             curent_planet += 1
-            planets.append(planet(random.randint(-200, 200) * pow(10, 10), random.randint(-100, 100) * pow(10, 10), random.randint(1, 100) * pow(10, 23), random.randint(3, 20) * pow(10, 3), random.randint(-10, 10) * 1e+9, random.randint(-10, 10) * 1e+9))
+            planets.append(planet(random.randint(-200, 200), random.randint(-100, 100), random.randint(1, 100), random.randint(3, 20), random.randint(-5, 5), random.randint(-5, 5)))
             for param in params:
                 param.text = ''
     else:
@@ -164,15 +164,15 @@ def phase_2(planets, planets_rec, trajectory, trajectory_rec, time_inp, phase):
             new_planets = []
             for plane in planets:
                 tr = []
-                tr.append(plane.x / pow(10, 10) + 500)
-                tr.append(plane.y / pow(10, 10) + 400)
+                tr.append(plane.x + 500)
+                tr.append(plane.y + 400)
                 for planet_b in planets:
                     plane.force_act(check_force(plane, planet_b))
                     if not plane.same(planet_b):
                         plane.check_colision(planet_b)
                 plane.step()
-                tr.append(plane.x / pow(10, 10) + 500)
-                tr.append(plane.y / pow(10, 10) + 400)
+                tr.append(plane.x + 500)
+                tr.append(plane.y + 400)
                 trajectory.append(tr)
                 new_planets.append(planet(plane.x, plane.y, plane.mass, plane.rad, plane.vx, plane.vy))
             trajectory_rec.append(list(trajectory))
@@ -186,14 +186,15 @@ def phase_2(planets, planets_rec, trajectory, trajectory_rec, time_inp, phase):
 def phase_3(planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_speed_inp, paused):
     pyray.clear_background(colors.BLACK)
     new_time = int(time // 1)
-    pyray.draw_rectangle(1000, 0, 200, 800, colors.WHITE)
 
     for i, planet in enumerate(planets_rec[new_time]):
         planet.draw(str(i))
-        pyray.draw_text(f"{i}. x:{round(planet.x / pow(10, 10))} y:{round(planet.y / pow(10, 10))} vx:{round(planet.vx / 1e+7)} vy:{round(planet.vy / 1e+7)}", 1025, 100 + (i * 25), 10, colors.BLACK)
+        pyray.draw_text(f"{i}. x:{round(planet.x)} y:{round(planet.y)} vx:{round(planet.vx)} vy:{round(planet.vy)}", 1025, 100 + (i * 25), 10, colors.BLACK)
 
     for tr in trajectory_rec[new_time]:
         pyray.draw_line(round(tr[0]), round(tr[1]), round(tr[2]), round(tr[3]), colors.GRAY)
+
+    pyray.draw_rectangle(1000, 0, 200, 800, colors.WHITE)
 
     if not time_speed_inp.pointed and not time_rec_inp.pointed:
         time_rec_inp.text = str(time)
@@ -213,6 +214,9 @@ def phase_3(planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_sp
 
     if pyray.get_key_pressed() == 32:
         paused = not paused
+
+    for i, planet in enumerate(planets_rec[new_time]):
+        pyray.draw_text(f"{i}. x:{round(planet.x)} y:{round(planet.y)} vx:{round(planet.vx)} vy:{round(planet.vy)}", 1025, 100 + (i * 25), 10, colors.BLACK)
 
     pyray.end_drawing()
 
