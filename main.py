@@ -3,6 +3,7 @@ import pyray
 import random
 from raylib import colors
 
+
 def is_number(a):
     try:
         float(a)
@@ -101,6 +102,57 @@ class planet:
         return self.x == other.x and self.y == other.y and self.mass == other.mass and self.rad == other.rad and self.vx == other.vx and self.vy == other.vy
 
 
+current_planet = 0
+phase = 0
+trajectory = []
+planets_rec = []
+trajectory_rec = []
+time = 0
+time_speed = 1
+paused = True
+
+count = text_box(300, 250, 50, "count:")
+x_inp = text_box(150, 100, 30, "X:")
+y_inp = text_box(150, 175, 30, "Y:")
+vx_inp = text_box(150, 250, 30, "Velo_X:")
+vy_inp = text_box(150, 325, 30, "Velo_Y:")
+mass_inp = text_box(150, 400, 30, "Mass:")
+rad_inp = text_box(150, 475, 30, "Radius:")
+time_inp = text_box(300, 250, 50, "Time:")
+time_rec_inp = text_box(1050, 50, 10, "time")
+time_speed_inp = text_box(1050, 75, 10, "time_sp")
+time_rec_inp.text = str(time)
+time_speed_inp.text = str(time_speed)
+params = [x_inp, y_inp, vx_inp, vy_inp, mass_inp, rad_inp]
+planets = []
+
+def restart():
+    global current_planet, phase, trajectory, planets, trajectory, planets_rec, trajectory_rec, time, time_speed, paused
+    global count, x_inp, y_inp, vx_inp, vy_inp, mass_inp,  rad_inp, time_inp, time_rec_inp, time_speed_inp, params
+    current_planet = 0
+    phase = 0
+    trajectory = []
+    planets_rec = []
+    trajectory_rec = []
+    time = 0
+    time_speed = 1
+    paused = True
+
+    count = text_box(300, 250, 50, "count:")
+    x_inp = text_box(150, 100, 30, "X:")
+    y_inp = text_box(150, 175, 30, "Y:")
+    vx_inp = text_box(150, 250, 30, "Velo_X:")
+    vy_inp = text_box(150, 325, 30, "Velo_Y:")
+    mass_inp = text_box(150, 400, 30, "Mass:")
+    rad_inp = text_box(150, 475, 30, "Radius:")
+    time_inp = text_box(300, 250, 50, "Time:")
+    time_rec_inp = text_box(1050, 50, 10, "time")
+    time_speed_inp = text_box(1050, 75, 10, "time_sp")
+    time_rec_inp.text = str(time)
+    time_speed_inp.text = str(time_speed)
+    params = [x_inp, y_inp, vx_inp, vy_inp, mass_inp, rad_inp]
+    planets = []
+
 def check_force(planet_a, planet_b):
     if not(planet_a.same(planet_b)):
         a = abs(planet_a.x - planet_b.x)
@@ -125,38 +177,40 @@ def text_input(text):
     return text
 
 
-def phase_0(count, phase):
+def phase_0():
+    global count, phase
     pyray.clear_background(colors.WHITE)
     count.logic()
     if pyray.gui_button(pyray.Rectangle(425, 500, 300, 100), "START"):
         phase = 1
         count = float(count.text)
     pyray.end_drawing()
-    return [count, phase]
+    return
 
-def phase_1(count, phase, curent_planet, params, planets):
+def phase_1():
+    global current_planet, count, phase
     pyray.clear_background(colors.WHITE)
-    if curent_planet < count:
+    if current_planet < count:
         for param in params:
             param.logic()
         if pyray.gui_button(pyray.Rectangle(650, 600, 300, 100), "NEXT_PLANET"):
-            curent_planet += 1
+            current_planet += 1
             planets.append(planet(float(params[0].text), float(params[1].text), float(params[4].text), float(params[5].text), float(params[2].text), float(params[3].text)))
             for param in params:
                 param.text = ''
         if pyray.gui_button(pyray.Rectangle(300, 600, 300, 100), "FILL_RANDOM"):
-            curent_planet += 1
+            current_planet += 1
             planets.append(planet(random.randint(-200, 200), random.randint(-100, 100), random.randint(1, 100), random.randint(3, 20), random.randint(-5, 5), random.randint(-5, 5)))
             for param in params:
                 param.text = ''
     else:
         phase = 2
     pyray.end_drawing()
-    return count, phase, curent_planet, params, planets
 
 
 
-def phase_2(planets, planets_rec, trajectory, trajectory_rec, time_inp, phase):
+def phase_2():
+    global time_inp, planets, trajectory_rec, planets_rec, phase
     pyray.clear_background(colors.WHITE)
     time_inp.logic()
     if pyray.gui_button(pyray.Rectangle(425, 500, 300, 100), "START_SIMULATION"):
@@ -179,11 +233,11 @@ def phase_2(planets, planets_rec, trajectory, trajectory_rec, time_inp, phase):
             planets_rec.append(list(new_planets))
         phase = 3
     pyray.end_drawing()
-    return [planets, planets_rec, trajectory, trajectory_rec, time_inp, phase]
 
 
 
-def phase_3(planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_speed_inp, paused):
+def phase_3():
+    global time, planets_rec, time_speed, paused, phase, trajectory_rec
     pyray.clear_background(colors.BLACK)
     new_time = int(time // 1)
 
@@ -218,6 +272,9 @@ def phase_3(planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_sp
     for i, planet in enumerate(planets_rec[new_time]):
         pyray.draw_text(f"{i}. x:{round(planet.x)} y:{round(planet.y)} vx:{round(planet.vx)} vy:{round(planet.vy)}", 1025, 100 + (i * 25), 10, colors.BLACK)
 
+    if pyray.gui_button(pyray.Rectangle(1010, 700, 180, 90), "RESTART"):
+        restart()
+        phase = 0
     pyray.end_drawing()
 
     return [planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_speed_inp, paused]
@@ -225,41 +282,18 @@ def phase_3(planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_sp
 
 
 def main():
-    current_planet = 0
-    phase = 0
-    trajectory = []
-    planets_rec = []
-    trajectory_rec = []
-    time = 0
-    time_speed = 1
-    paused = True
-
+    global phase
     pyray.init_window(1200, 800, "PCalc")
-    count = text_box(300, 250, 50, "count:")
-    x_inp = text_box(150, 100, 30, "X:")
-    y_inp = text_box(150, 175, 30, "Y:")
-    vx_inp = text_box(150, 250, 30, "Velo_X:")
-    vy_inp = text_box(150, 325, 30, "Velo_Y:")
-    mass_inp = text_box(150, 400, 30, "Mass:")
-    rad_inp = text_box(150, 475, 30, "Radius:")
-    time_inp = text_box(300, 250, 50, "Time:")
-    time_rec_inp = text_box(1050, 50, 10, "time")
-    time_speed_inp = text_box(1050, 75, 10, "time_sp")
-    time_rec_inp.text = str(time)
-    time_speed_inp.text = str(time_speed)
-    params = [x_inp, y_inp, vx_inp, vy_inp, mass_inp, rad_inp]
-
-    planets = []
     pyray.set_target_fps(60)
     while not pyray.window_should_close():
         if phase == 0:
-            [count, phase] = phase_0(count, phase)
+            phase_0()
         elif phase == 1:
-            [count, phase, current_planet, params, planets] = phase_1(count, phase, current_planet, params, planets)
+            phase_1()
         elif phase == 2:
-            [planets, planets_rec, trajectory, trajectory_rec, time_inp, phase] = phase_2(planets, planets_rec, trajectory, trajectory_rec, time_inp, phase)
+            phase_2()
         elif phase == 3:
-            [planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_speed_inp, paused] = phase_3(planets_rec, trajectory_rec, time, time_speed, time_rec_inp, time_speed_inp, paused)
+            phase_3()
 
 
 if __name__ == "__main__":
