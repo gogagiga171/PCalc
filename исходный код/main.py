@@ -17,7 +17,8 @@ def is_number(a):           #функциия для проверки можно
 
 class input:                #класс input для ввода значений
 
-    def __init__(self, x, y, size, title):   #конструктор
+    def __init__(self, x, y, size, title, cbz):   #конструктор
+        self.can_be_zero = cbz
         self.x = x
         self.y = y
         self.size = size
@@ -48,8 +49,11 @@ class input:                #класс input для ввода значений
         else:
             while not len(self.text) == 0 and not len(self.text) == 1 and self.text[0] == "0":
                 self.text = self.text[1:]
-            if not is_number(self.text):
-                self.text = "0"
+            if not is_number(self.text) or self.text == "0":
+                if self.can_be_zero:
+                    self.text = "0"
+                else:
+                    self.text = "1"
             self.text = str(eval(self.text))
         self.draw()
 
@@ -123,16 +127,16 @@ current_planet = 0  #эта и следующие переменные явля�
 time_speed = 1
 
 
-count = input(300, 250, 50, "count:")  #вводы для всего что можно ввести в приложении
-x_inp = input(150, 100, 30, "X:")
-y_inp = input(150, 175, 30, "Y:")
-vx_inp = input(150, 250, 30, "Velo_X:")
-vy_inp = input(150, 325, 30, "Velo_Y:")
-mass_inp = input(150, 400, 30, "Mass:")
-rad_inp = input(150, 475, 30, "Radius:")
-time_inp = input(300, 250, 50, "Time:")
-time_rec_inp = input(1050, 50, 10, "time")
-time_speed_inp = input(1050, 75, 10, "time_sp")
+count = input(300, 250, 50, "count:", True)  #вводы для всего что можно ввести в приложении
+x_inp = input(150, 100, 30, "X:", True)
+y_inp = input(150, 175, 30, "Y:", True)
+vx_inp = input(150, 250, 30, "Velo_X:", True)
+vy_inp = input(150, 325, 30, "Velo_Y:", True)
+mass_inp = input(150, 400, 30, "Mass:", False)
+rad_inp = input(150, 475, 30, "Radius:", False)
+time_inp = input(300, 250, 50, "Time:", False)
+time_rec_inp = input(1050, 50, 10, "time", True)
+time_speed_inp = input(1050, 75, 10, "time_sp", True)
 time_rec_inp.text = str(time)
 params = [x_inp, y_inp, vx_inp, vy_inp, mass_inp, rad_inp]
 planets = []  #планеты
@@ -150,16 +154,16 @@ def restart():    #функция для установления всех гл�
     paused = True
     current_planet = 0
 
-    count = input(300, 250, 50, "count:")
-    x_inp = input(150, 100, 30, "X:")
-    y_inp = input(150, 175, 30, "Y:")
-    vx_inp = input(150, 250, 30, "Velo_X:")
-    vy_inp = input(150, 325, 30, "Velo_Y:")
-    mass_inp = input(150, 400, 30, "Mass:")
-    rad_inp = input(150, 475, 30, "Radius:")
-    time_inp = input(300, 250, 50, "Time:")
-    time_rec_inp = input(1050, 50, 10, "time")
-    time_speed_inp = input(1050, 75, 10, "time_sp")
+    count = input(300, 250, 50, "count:", True)
+    x_inp = input(150, 100, 30, "X:", True)
+    y_inp = input(150, 175, 30, "Y:", True)
+    vx_inp = input(150, 250, 30, "Velo_X:", True)
+    vy_inp = input(150, 325, 30, "Velo_Y:", True)
+    mass_inp = input(150, 400, 30, "Mass:", False)
+    rad_inp = input(150, 475, 30, "Radius:", False)
+    time_inp = input(300, 250, 50, "Time:", False)
+    time_rec_inp = input(1050, 50, 10, "time", True)
+    time_speed_inp = input(1050, 75, 10, "time_sp", True)
     time_rec_inp.text = str(time)
     params = [x_inp, y_inp, vx_inp, vy_inp, mass_inp, rad_inp]
     planets = []
